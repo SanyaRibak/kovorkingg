@@ -1,0 +1,248 @@
+﻿<Window x:Class="kovorkingg.Views.BookingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Бронирования" Height="650" Width="1100"
+        WindowStartupLocation="CenterOwner" WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent">
+    <Border CornerRadius="12" Background="#0D0D0D">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="15" ShadowDepth="3" Opacity="0.3" Color="#7E22CE"/>
+        </Border.Effect>
+        <Grid Margin="15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Шапка -->
+            <Border Grid.Row="0" Height="50" Background="#1E1E1E" CornerRadius="8" Margin="0,0,0,10">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
+                        <TextBlock Text="" Foreground="#C084FC" FontSize="16"/>
+                        <TextBlock Text="Журнал бронирований" Foreground="White" FontSize="14" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="15,0">
+                        <Button Content="Обновить" Background="#7E22CE" Foreground="White" 
+                                BorderThickness="0" Width="100" Height="30" Margin="0,0,10,0"
+                                Click="Refresh_Click" Cursor="Hand">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="6"/>
+                                </Style>
+                            </Button.Resources>
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button Content="Закрыть" Background="#9333EA" Foreground="White" 
+                                BorderThickness="0" Width="80" Height="30" Click="Close_Click" Cursor="Hand">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="6"/>
+                                </Style>
+                            </Button.Resources>
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Background="#1E1E1E" CornerRadius="8" Margin="0,0,10,0" Padding="15">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Список бронирований" FontSize="18" FontWeight="Bold" 
+                                   Foreground="#C084FC" Margin="0,0,0,10"/>
+
+                        <StackPanel Grid.Row="1" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <DatePicker x:Name="dpFilterDate" Grid.Column="0" Height="30" 
+                                            Background="#2D2D2D" Foreground="black" 
+                                            BorderBrush="#7E22CE" Margin="0,0,5,0"
+                                            />
+                                <ComboBox x:Name="cmbFilterStatus" Grid.Column="1" Height="30" 
+                                          Background="#2D2D2D" Foreground="black" BorderBrush="#7E22CE" Margin="5,0">
+                                    <ComboBoxItem Content="Все статусы" IsSelected="True"/>
+                                    <ComboBoxItem Content="pending"/>
+                                    <ComboBoxItem Content="confirmed"/>
+                                    <ComboBoxItem Content="completed"/>
+                                    <ComboBoxItem Content="cancelled"/>
+                                </ComboBox>
+                                <Button Content="🔍" Grid.Column="2" Width="40" Height="30"
+                                        Background="#7E22CE" Foreground="White" BorderThickness="0"
+                                        Click="ApplyFilter_Click" Cursor="Hand">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="6"/>
+                                        </Style>
+                                    </Button.Resources>
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                        
+                        <DataGrid x:Name="dgBookings" Grid.Row="2" AutoGenerateColumns="False" 
+                                  IsReadOnly="True" Background="#2D2D2D" Foreground="White" 
+                                  RowBackground="#2D2D2D" AlternatingRowBackground="#3A3A3A"
+                                  BorderBrush="#7E22CE" BorderThickness="1"
+                                  HeadersVisibility="Column" CanUserAddRows="False"
+                                  SelectionMode="Single" SelectionChanged="Bookings_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="40"/>
+                                <DataGridTextColumn Header="Клиент" Binding="{Binding clients.full_name}" Width="*"/>
+                                <DataGridTextColumn Header="Дата" Binding="{Binding booking_date, StringFormat={}{0:dd.MM.yyyy}}" Width="80"/>
+                                <DataGridTextColumn Header="Время" Width="100">
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0:hh\:mm} - {1:hh\:mm}">
+                                            <Binding Path="start_time"/>
+                                            <Binding Path="end_time"/>
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Сумма" Binding="{Binding total_amount, StringFormat={}{0:F2} ₽}" Width="80"/>
+                                <DataGridTextColumn Header="Статус" Binding="{Binding status}" Width="80"/>
+                                <DataGridTextColumn Header="Кассир" Binding="{Binding users.full_name}" Width="120"/>
+                            </DataGrid.Columns>
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#7E22CE"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Height" Value="30"/>
+                                </Style>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Padding" Value="5,2"/>
+                                </Style>
+                            </DataGrid.Resources>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="1" Background="#1E1E1E" CornerRadius="8" Padding="15">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock x:Name="lblDetailsTitle" Text="Детали бронирования" FontSize="18" FontWeight="Bold" 
+                                   Foreground="#C084FC" Margin="0,0,0,10"/>
+
+                        <StackPanel Grid.Row="1">
+                            <Border Background="#2D2D2D" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock x:Name="txtClientInfo" Foreground="White" FontSize="14" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtDateTimeInfo" Foreground="#D8B4FE" Margin="0,5,0,0"/>
+                                    <TextBlock x:Name="txtStatusInfo" Foreground="#C084FC" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <TextBlock Text="🧾 Состав услуг:" Foreground="#D8B4FE" Margin="0,0,0,5"/>
+                            <DataGrid x:Name="dgBookingItems" Height="150" AutoGenerateColumns="False" 
+                                      Background="#2D2D2D" Foreground="White" RowBackground="#2D2D2D"
+                                      AlternatingRowBackground="#3A3A3A" BorderBrush="#7E22CE"
+                                      HeadersVisibility="Column" IsReadOnly="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Услуга" Binding="{Binding items.name}" Width="*"/>
+                                    <DataGridTextColumn Header="Цена" Binding="{Binding price, StringFormat={}{0:F2}}" Width="60"/>
+                                    <DataGridTextColumn Header="Кол-во" Binding="{Binding quantity}" Width="50"/>
+                                    <DataGridTextColumn Header="Сумма" Width="70">
+                                        <DataGridTextColumn.Binding>
+                                            <MultiBinding StringFormat="{}{0:F2}">
+                                                <Binding Path="price"/>
+                                                <Binding Path="quantity"/>
+                                            </MultiBinding>
+                                        </DataGridTextColumn.Binding>
+                                    </DataGridTextColumn>
+                                </DataGrid.Columns>
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="#7E22CE"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Height" Value="25"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                            </DataGrid>
+
+                            <TextBlock x:Name="txtTotalInfo" Foreground="#C084FC" FontSize="16" FontWeight="Bold" 
+                                       HorizontalAlignment="Right" Margin="0,10,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" x:Name="pnlAdminActions" Visibility="Collapsed">
+                            <TextBlock Text="Изменить статус:" Foreground="#D8B4FE" Margin="0,10,0,5"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox x:Name="cmbChangeStatus" Grid.Column="0" Height="30" 
+                                          Background="#2D2D2D" Foreground="White" BorderBrush="#7E22CE" Margin="0,0,5,0">
+                                    <ComboBoxItem Content="pending"/>
+                                    <ComboBoxItem Content="confirmed"/>
+                                    <ComboBoxItem Content="completed"/>
+                                    <ComboBoxItem Content="cancelled"/>
+                                </ComboBox>
+                                <Button Content="Применить" Grid.Column="1" Width="90" Height="30"
+                                        Background="#9333EA" Foreground="White" BorderThickness="0"
+                                        Click="ChangeStatus_Click" Cursor="Hand">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="6"/>
+                                        </Style>
+                                    </Button.Resources>
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <StatusBar Grid.Row="2" Background="#1E1E1E" Foreground="White" Margin="0,10,0,0" Height="25">
+                <StatusBarItem>
+                    <TextBlock x:Name="txtStatus" Foreground="#D8B4FE"/>
+                </StatusBarItem>
+            </StatusBar>
+        </Grid>
+    </Border>
+</Window>
